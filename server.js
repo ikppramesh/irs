@@ -4,15 +4,20 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as rk from 'railkit';
 
-if (!process.env.RAILKIT_API_KEY) {
-  console.error('Missing RAILKIT_API_KEY in .env');
-  process.exit(1);
-}
-rk.configure(process.env.RAILKIT_API_KEY);
+const API_KEY = process.env.RAILKIT_API_KEY;
+// Don't exit when the key is missing: on Vercel that crashes the function with
+// FUNCTION_INVOCATION_FAILED. Serve the page and explain the problem from /api instead.
+if (API_KEY) rk.configure(API_KEY);
+else console.error('Missing RAILKIT_API_KEY (set it in .env locally or in Vercel → Settings → Environment Variables)');
 
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// On Vercel, public/ is served by the CDN; this covers local runs.
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/api', (req, res, next) => {
+  if (API_KEY) return next();
+  res.status(500).json({ success: false, error: 'Server is missing RAILKIT_API_KEY. Add it to the environment variables and redeploy.' });
+});
 
 // --- validation helpers -------------------------------------------------
 const CLASSES = ['1A', '2A', '3A', '3E', 'CC', 'EC', 'EA', 'FC', 'SL', '2S', 'VS', 'CH', 'HS', 'VC', 'VA'];
@@ -143,5 +148,10 @@ route('/api/timetable', 60 * MIN, (q) => {
   return { key: `${code}|${d}`, call: () => rk.trainTimetableAtStation(code, d) };
 });
 
-const port = Number(process.env.PORT) || 3000;
-app.listen(port, () => console.log(`🚆 IRS running at http://localhost:${port}`));
+// Vercel runs the exported app as a serverless function; only listen when run directly.
+if (!process.env.VERCEL) {
+  const port = Number(process.env.PORT) || 3000;
+  app.listen(port, () => console.log(`🚆 IRS running at http://localhost:${port}`));
+}
+
+export default app;

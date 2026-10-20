@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IRS — Trains, Fares & Live Status</title>
+  <meta name="description" content="Search trains between stations, see official fares with zero commission, seat availability, live running status, PNR and station boards." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚆</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="brand">
+        <span class="brand-logo">🚆</span>
+        <div>
+          <h1>IRS</h1>
+          <p class="tagline">Every train detail in one place. Official fares, <strong>₹0 commission</strong>.</p>
+        </div>
+      </div>
+      <button class="theme-toggle" id="themeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+    </div>
+    <div class="hero-track" aria-hidden="true">
+      <div class="hero-train">
+        <span class="mini-coach"></span><span class="mini-coach"></span><span class="mini-coach"></span><span class="mini-engine"></span>
+      </div>
+      <div class="rails"></div>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs" role="tablist">
+    <button class="tab active" data-tab="journey">🗺️ Plan Journey</button>
+    <button class="tab" data-tab="track">📍 Live Track</button>
+    <button class="tab" data-tab="info">🚂 Train Route</button>
+    <button class="tab" data-tab="history">🕓 Run History</button>
+    <button class="tab" data-tab="pnr">🎫 PNR Status</button>
+    <button class="tab" data-tab="station">🏛️ Station</button>
+    <button class="tab" data-tab="cancelled">⛔ Cancelled</button>
+    <button class="tab" data-tab="irctc">🔗 IRCTC Services</button>
+  </nav>
+
+  <main>
+    <!-- JOURNEY PLANNER -->
+    <section class="panel active" id="panel-journey">
+      <form class="card form-grid" id="journeyForm" autocomplete="off">
+        <div class="field station-field">
+          <label for="fromStn">From</label>
+          <input id="fromStn" placeholder="City or station e.g. Hyderabad" required />
+          <ul class="suggest"></ul>
+        </div>
+        <button type="button" class="swap" id="swapBtn" title="Swap stations" aria-label="Swap stations">⇄</button>
+        <div class="field station-field">
+          <label for="toStn">To</label>
+          <input id="toStn" placeholder="City or station e.g. New Delhi" required />
+          <ul class="suggest"></ul>
+        </div>
+        <div class="field">
+          <label for="journeyDate">Date</label>
+          <input type="date" id="journeyDate" required />
+        </div>
+        <div class="field">
+          <label for="journeyQuota">Quota</label>
+          <select id="journeyQuota">
+            <option value="GN">General</option>
+            <option value="TQ">Tatkal</option>
+            <option value="LD">Ladies</option>
+            <option value="SS">Senior / Lower Berth</option>
+          </select>
+        </div>
+        <button class="btn primary" type="submit">Find Trains 🚆</button>
+      </form>
+      <div id="journeyResults"></div>
+    </section>
+
+    <!-- LIVE TRACK -->
+    <section class="panel" id="panel-track">
+      <form class="card form-row" id="trackForm" autocomplete="off">
+        <div class="field train-field">
+          <label for="trackTrain">Train number or name</label>
+          <input id="trackTrain" placeholder="e.g. 12723 or Telangana" required />
+          <ul class="suggest"></ul>
+        </div>
+        <div class="field">
+          <label for="trackDate">Started on</label>
+          <select id="trackDate"></select>
+        </div>
+        <label class="check"><input type="checkbox" id="autoRefresh" /> Auto-refresh every 60s</label>
+        <button class="btn primary" type="submit">Track 📍</button>
+      </form>
+      <div id="trackResults"></div>
+    </section>
+
+    <!-- TRAIN INFO -->
+    <section class="panel" id="panel-info">
+      <form class="card form-row" id="infoForm" autocomplete="off">
+        <div class="field train-field">
+          <label for="infoTrain">Train number or name</label>
+          <input id="infoTrain" placeholder="e.g. 12723 or Rajdhani" required />
+          <ul class="suggest"></ul>
+        </div>
+        <button class="btn primary" type="submit">Show Route 🚂</button>
+      </form>
+      <div id="infoResults"></div>
+    </section>
+
+    <!-- HISTORY -->
+    <section class="panel" id="panel-history">
+      <form class="card form-row" id="historyForm" autocomplete="off">
+        <div class="field train-field">
+          <label for="historyTrain">Train number or name</label>
+          <input id="historyTrain" placeholder="e.g. 12723" required />
+          <ul class="suggest"></ul>
+        </div>
+        <div class="field">
+          <label for="historyDate">Journey date (completed)</label>
+          <input type="date" id="historyDate" required />
+        </div>
+        <button class="btn primary" type="submit">Get History 🕓</button>
+      </form>
+      <div id="historyResults"></div>
+    </section>
+
+    <!-- PNR -->
+    <section class="panel" id="panel-pnr">
+      <form class="card form-row" id="pnrForm" autocomplete="off">
+        <div class="field">
+          <label for="pnrInput">10-digit PNR</label>
+          <input id="pnrInput" inputmode="numeric" maxlength="10" pattern="\d{10}" placeholder="e.g. 4512345678" required />
+        </div>
+        <button class="btn primary" type="submit">Check PNR 🎫</button>
+      </form>
+      <div id="pnrResults"></div>
+    </section>
+
+    <!-- STATION -->
+    <section class="panel" id="panel-station">
+      <form class="card form-row" id="stationForm" autocomplete="off">
+        <div class="field station-field">
+          <label for="stationInput">Station</label>
+          <input id="stationInput" placeholder="e.g. Secunderabad or SC" required />
+          <ul class="suggest"></ul>
+        </div>
+        <div class="field">
+          <label for="stationHours">Live board window</label>
+          <select id="stationHours"><option value="2">Next 2 hrs</option><option value="4">Next 4 hrs</option><option value="8">Next 8 hrs</option></select>
+        </div>
+        <button class="btn primary" type="submit">Open Station 🏛️</button>
+      </form>
+      <div id="stationResults"></div>
+    </section>
+
+    <!-- CANCELLED -->
+    <section class="panel" id="panel-cancelled">
+      <div class="card form-row">
+        <div class="field grow">
+          <label for="cancelFilter">Filter by train, number or station</label>
+          <input id="cancelFilter" placeholder="Type to filter…" />
+        </div>
+        <button class="btn primary" id="cancelLoad">Load Cancelled Trains ⛔</button>
+      </div>
+      <div id="cancelResults"></div>
+    </section>
+
+    <!-- IRCTC -->
+    <section class="panel" id="panel-irctc">
+      <div class="card">
+        <h2>Book & manage on official sites (no middle-man)</h2>
+        <p class="muted">IRS shows you everything first. When you're ready, these buttons take you straight to the official Indian Railways / IRCTC pages. No agent, no markup.</p>
+        <div class="service-grid" id="serviceGrid"></div>
+      </div>
+      <div class="card">
+        <h3>Why it costs less here</h3>
+        <ul class="ticks">
+          <li>Fares shown are the <strong>official IRCTC fare</strong> (base + reservation + superfast + GST). IRS adds nothing.</li>
+          <li>Third-party apps often add ₹20–₹100+ per ticket as "convenience" or "agent" fees. Booking directly on IRCTC skips that.</li>
+          <li>IRCTC itself charges a small convenience fee at payment (about ₹15 for non-AC, ₹30 for AC, plus GST) and your bank/UPI gateway may add a little. UPI is usually cheapest.</li>
+          <li>Unreserved (general) tickets can be bought on the UTS app with no convenience fee.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- Detail drawer for fare + availability -->
+  <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <button class="drawer-close" id="drawerClose" aria-label="Close">✕</button>
+    <div id="drawerBody"></div>
+  </aside>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <footer>
+    Data from RailKit (Indian Railways sources). Always confirm on IRCTC before travel. · Railway enquiry: <strong>139</strong>
+  </footer>
+
+  <template id="loaderTpl">
+    <div class="loader" role="status" aria-live="polite">
+      <div class="loader-scene">
+        <div class="smoke"><span></span><span></span><span></span></div>
+        <div class="train">
+          <div class="engine">
+            <div class="cab"><div class="window"></div></div>
+            <div class="boiler"><div class="chimney"></div><div class="headlight"></div></div>
+            <div class="wheels"><i></i><i></i><i></i></div>
+          </div>
+          <div class="coach"><div class="windows"><i></i><i></i><i></i></div><div class="wheels"><i></i><i></i></div></div>
+          <div class="coach"><div class="windows"><i></i><i></i><i></i></div><div class="wheels"><i></i><i></i></div></div>
+        </div>
+        <div class="track-line"><div class="sleepers"></div></div>
+      </div>
+      <p class="loader-text">Departing from platform 1…</p>
+    </div>
+  </template>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>

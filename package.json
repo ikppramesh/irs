@@ -1,0 +1,21 @@
+{
+  "name": "irs",
+  "version": "1.0.0",
+  "description": "IRS: train search, official fares (zero commission), seat availability, live tracking, PNR and station info powered by RailKit",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^18.0.8",
+    "express": "^5.3.0",
+    "railkit": "^6.0.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -4,7 +4,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as rk from 'railkit';
 
-const API_KEY = process.env.RAILKIT_API_KEY;
+// Key comes from the environment (.env locally, Vercel settings), or from an optional
+// committed railkit.key.js (`export default 'railkit_...'`) for deploys without env vars.
+const fileKey = await import('./railkit.key.js').then((m) => m.default).catch(() => undefined);
+const API_KEY = process.env.RAILKIT_API_KEY || fileKey;
 // Don't exit when the key is missing: on Vercel that crashes the function with
 // FUNCTION_INVOCATION_FAILED. Serve the page and explain the problem from /api instead.
 if (API_KEY) rk.configure(API_KEY);

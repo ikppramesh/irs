@@ -14,6 +14,7 @@ if (API_KEY) rk.configure(API_KEY);
 else console.error('Missing RAILKIT_API_KEY (set it in .env locally or in Vercel → Settings → Environment Variables)');
 
 const app = express();
+app.disable('x-powered-by');
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // On Vercel, public/ is served by the CDN; this covers local runs.
 app.use(express.static(path.join(__dirname, 'public')));
